@@ -9,9 +9,8 @@ import org.junit.*;
 
 public class BSTTest {
 	
-	/* TODO: Add your own tests */
 	@Test
-	public void dummyTest() {
+	public void putAndGetTest() {
 		BST<String,String> testTree = new BST<>();
 
 		assertEquals(true,testTree.isEmpty());
@@ -31,4 +30,37 @@ public class BSTTest {
 		assertEquals("eight",testTree.get("h"));
 
 	}
+	@Test
+	public void setTest() {
+		BST<String,String> testTree = new BST<>();
+
+		testTree.set("c", "three");
+		testTree.set("b", "two");
+		testTree.set("d", "four");
+		testTree.set("d", "one");
+
+
+		assertEquals(3, testTree.size());
+		assertEquals("three",testTree.get("c"));
+		assertEquals("two",testTree.get("b"));
+		assertEquals("one",testTree.get("d"));
+
+	}
+	@Test
+	public void replaceTest() {
+		BST<String,String> testTree = new BST<>();
+
+		testTree.set("c", "three");
+		testTree.set("b", "two");
+		testTree.set("d", "four");
+		testTree.replace("d", "one");		
+		boolean test = testTree.replace("e", "one");
+
+
+		assertEquals(3, testTree.size());
+		assertEquals("three",testTree.get("c"));
+		assertEquals("two",testTree.get("b"));
+		assertEquals("one",testTree.get("d"));
+		assertEquals(false, test);
+	} 
 }

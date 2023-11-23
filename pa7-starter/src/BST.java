@@ -57,7 +57,7 @@ public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V>
 	public boolean replace(K key, V newValue) throws IllegalArgumentException {
 		if ( key == null ) { throw new IllegalArgumentException("Key is null.");}
 		this.root = this.replace(this.root, key, newValue);
-		return get(this.root, key) == null;
+		return get(this.root, key) != null;
 	}
 	/*
 	 * Helper method for replace() method
@@ -71,7 +71,7 @@ public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V>
 			return node;
 		}
 		if (node.getKey().compareTo(key) < 0) {
-			node.right = replace(root.right, key, newValue);
+			node.right = replace(node.right, key, newValue);
 			return node;
 		} else {
 			node.setValue(newValue);
@@ -101,7 +101,7 @@ public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V>
 	 * Helper method for the set method that 
 	 */
 	private Node<K,V> set(Node<K,V> node,K key,V value) {
-		if ( root == null ) {
+		if ( node == null ) {
 			this.size++;
 			return new Node<K,V>(key, value, null, null);
 		}
@@ -171,13 +171,11 @@ public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V>
 	/*
 	 * Helper method for keys() method.
 	 */
-	private void findKeys(Node<K,V> root, List<K> keys) {
-		if ( root == null ) {
-			return;
-		} else {
-			keys.add(root.getKey());
-			findKeys(root.left, keys);
-			findKeys(root.right, keys);
+	private void findKeys(Node<K,V> node, List<K> keys) {
+		if ( node != null ) {
+			findKeys(node.left, keys);
+			keys.add(node.getKey());
+			findKeys(node.right, keys);
 		}
 	}
 	
