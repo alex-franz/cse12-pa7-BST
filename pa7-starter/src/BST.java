@@ -42,10 +42,11 @@ public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V>
 			node = new Node<K,V>(key, value, null, null);
 			return node;
 		}
-		if ( node.getKey().compareTo(key) < 0 ) {
+		int comp = node.getKey().compareTo(key);
+		if ( comp < 0 ) {
 			node.right = this.put(node.right,key,value);
 			return node;
-		} else if ( node.getKey().compareTo(key) > 0 ) {
+		} else if ( comp > 0 ) {
 			node.left = this.put(node.left, key, value);
 			return node;
 		} else {
@@ -66,11 +67,11 @@ public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V>
 		if ( node == null ) {
 			return null; 
 		}
-		if ( node.getKey().compareTo(key) > 0 ) {
+		int comp = node.getKey().compareTo(key);
+		if ( comp > 0 ) {
 			node.left = this.replace(node.left, key, newValue);
 			return node;
-		}
-		if (node.getKey().compareTo(key) < 0) {
+		} else if ( comp < 0 ) {
 			node.right = replace(node.right, key, newValue);
 			return node;
 		} else {
@@ -84,31 +85,77 @@ public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V>
 		if ( key == null ) {
 			throw new IllegalArgumentException("Key is null.");
 		}
-		return remove(this.root, key);
+		if ( this.containsKey(key) ) {
+			this.root = this.remove(this.root, key);
+			return true;
+		} else {
+			return false;
+		}
 	}
 	/*
 	 * Remove helper method that searches through the tree. 
 	 */
-	private boolean remove(Node<K,V> root, K key) {
-		return true;
+
+	private Node<K,V> remove( Node<K,V> node, K key ) {
+		if ( node == null ) {
+			return null;
+		}
+		int comp = node.getKey().compareTo(key);
+		if ( comp > 0 ) {
+			node.left = this.remove(node.left,key);
+			return node;
+		} else if ( comp < 0 ) {
+			node.right = this.remove(node.right,key);
+			return node; 
+		} 
+		// Current node is the node we need to remove
+		if ( node.left == null && node.right == null ) { // Case for when node is a leaf 
+			return null;
+		}
+		if ( node.left == null ) { // Case for when node has one child
+			Node<K,V> temp = node.right;
+			size--;
+			return temp;
+		} else if ( node.right == null ) { // Case for when node has one child
+			Node<K,V> temp = node.left;
+			size--;
+			return temp;
+		} else { // Case for node with two children
+			Node<K,V> succ = findRightMin(node.right);
+			node.key = succ.getKey();
+			node.setValue(succ.getValue());
+			node.right = this.remove(node.right, succ.getKey());
+			size--;
+			return node;
+		}
 	}
+
+	private Node<K,V> findRightMin(Node<K,V> node) {
+		if ( node.left == null ) {
+			return node;
+		} else {
+			return findRightMin(node.left);
+		}		
+	}
+
 	@Override
 	public void set(K key, V value) throws IllegalArgumentException {
 		if (key == null) { throw new IllegalArgumentException("Key is null.");}
 		this.root = this.set(this.root,key, value);
 	}
 	/*
-	 * Helper method for the set method that 
+	 * Helper method for set method  
 	 */
 	private Node<K,V> set(Node<K,V> node,K key,V value) {
 		if ( node == null ) {
 			this.size++;
 			return new Node<K,V>(key, value, null, null);
 		}
-		if ( node.getKey().compareTo(key) < 0 ) {
+		int comp = node.getKey().compareTo(key);
+		if ( comp < 0 ) {
 			node.right = this.set(node.right, key, value);
 			return node;
-		} else if ( node.getKey().compareTo(key) > 0 ) {
+		} else if ( comp > 0 ) {
 			node.left = this.set(node.left, key, value);
 			return node;
 		} else {
@@ -132,10 +179,10 @@ public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V>
 		if ( node == null ) {
 			return null;
 		}
-		if ( node.getKey().compareTo(key) > 0 ) {
+		int comp = node.getKey().compareTo(key);
+		if ( comp > 0 ) {
 			return get(node.left,key);
-		}
-		if ( node.getKey().compareTo(key) < 0 ) {
+		} else if ( comp < 0 ) {
 			return get(node.right,key);
 		} else {
 			return node.value;
@@ -157,7 +204,7 @@ public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V>
 		if ( key == null ) {
 			throw new IllegalArgumentException("Key is null.");
 		}
-		return get(this.root, key) == null;
+		return get(this.root, key) != null;
 	}
 	// Keys must be in ascending sorted order
 	// You CANNOT use Collections.sort() or any other sorting implementations

@@ -63,4 +63,61 @@ public class BSTTest {
 		assertEquals("one",testTree.get("d"));
 		assertEquals(false, test);
 	} 
+	@Test
+	public void getKeys() {
+		BST<Integer, String> testTree = new BST<>();
+
+		testTree.put(3,"Chris");
+		testTree.put(4,"Alex");
+		testTree.put(1,"Trevor");
+		testTree.put(9,"Bill");
+		testTree.put(2,"Chris");
+
+		List<Integer> expectedKeys = new ArrayList<Integer>();
+		expectedKeys.add(1);
+		expectedKeys.add(2);
+		expectedKeys.add(3);
+		expectedKeys.add(4);
+		expectedKeys.add(9);
+
+		List<Integer> keys = testTree.keys();
+		assertEquals(expectedKeys.size(),keys.size());
+
+		for ( int i = 0; i < expectedKeys.size(); i++ ) {
+			assertEquals(expectedKeys.get(i),keys.get(i));
+		}
+
+	}
+
+	@Test 
+	public void removeTest() {		
+		
+		BST<Integer, String> testTree = new BST<>();
+
+		testTree.put(3,"Chris");
+		testTree.put(6,"Alex");
+		testTree.put(1,"Trevor");
+		testTree.put(9,"Bill");
+		testTree.put(2,"Chris");
+		testTree.put(5,"Orange");
+
+
+		assertEquals(6, testTree.size());
+
+		assertEquals(true,testTree.remove(6));
+
+		List<Integer> expectedKeys = new ArrayList<Integer>();
+		expectedKeys.add(1);
+		expectedKeys.add(2);
+		expectedKeys.add(3);
+		expectedKeys.add(5);
+		expectedKeys.add(9);
+		List<Integer> keys = testTree.keys();
+		assertEquals(5, testTree.size());
+		
+		for ( int i = 0; i < expectedKeys.size(); i++ ) {
+			assertEquals(expectedKeys.get(i),keys.get(i));
+		}
+
+	}
 }
