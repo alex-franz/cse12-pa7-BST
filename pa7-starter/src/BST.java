@@ -1,7 +1,7 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
-
 /**
  * @param <K> The type of the keys of this BST. They need to be comparable by nature of the BST
  * "K extends Comparable" means that BST will only compile with classes that implement Comparable
@@ -10,94 +10,207 @@ import java.util.Stack;
  */
 public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V> {
 	/* 
-	 * TODO: Add instance variables 
 	 * You may add any instance variables you need, but 
 	 * you may NOT use any class that implements java.util.SortedMap
 	 * or any other implementation of a binary search tree
 	 */
+	Node<K,V> root;
+	int size;
+	Comparator<K> comparator;
+
+	public BST() {
+		this.root = null;
+		this.size = 0;
+	}
 
 	@Override
 	public boolean put(K key, V value) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return false;
+		if (key == null) { 
+			throw new IllegalArgumentException("Key is null.");
+		}
+		int beforeSize = this.size();
+		this.root = put(this.root, key, value);
+		return this.size() != beforeSize;
+	}
+	/*
+	 * Helper method for put() to traverse the tree and insert 
+	 * the specified key value pair
+	 */
+	private Node<K,V> put(Node<K,V> node, K key,V value) {
+		if ( node == null ) {
+			size++;
+			node = new Node<K,V>(key, value, null, null);
+			return node;
+		}
+		if ( node.getKey().compareTo(key) < 0 ) {
+			node.right = this.put(node.right,key,value);
+			return node;
+		} else if ( node.getKey().compareTo(key) > 0 ) {
+			node.left = this.put(node.left, key, value);
+			return node;
+		} else {
+			return node; 
+		}
 	}
 
 	@Override
 	public boolean replace(K key, V newValue) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return false;
+		if ( key == null ) { throw new IllegalArgumentException("Key is null.");}
+		this.root = this.replace(this.root, key, newValue);
+		return get(this.root, key) == null;
+	}
+	/*
+	 * Helper method for replace() method
+	 */
+	private Node<K,V> replace(Node<K,V> node , K key, V newValue) {
+		if ( node == null ) {
+			return null; 
+		}
+		if ( node.getKey().compareTo(key) > 0 ) {
+			node.left = this.replace(node.left, key, newValue);
+			return node;
+		}
+		if (node.getKey().compareTo(key) < 0) {
+			node.right = replace(root.right, key, newValue);
+			return node;
+		} else {
+			node.setValue(newValue);
+			return node;
+		}
 	}
 
 	@Override
 	public boolean remove(K key) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return false;
+		if ( key == null ) {
+			throw new IllegalArgumentException("Key is null.");
+		}
+		return remove(this.root, key);
 	}
-
+	/*
+	 * Remove helper method that searches through the tree. 
+	 */
+	private boolean remove(Node<K,V> root, K key) {
+		return true;
+	}
 	@Override
 	public void set(K key, V value) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		
+		if (key == null) { throw new IllegalArgumentException("Key is null.");}
+		this.root = this.set(this.root,key, value);
+	}
+	/*
+	 * Helper method for the set method that 
+	 */
+	private Node<K,V> set(Node<K,V> node,K key,V value) {
+		if ( root == null ) {
+			this.size++;
+			return new Node<K,V>(key, value, null, null);
+		}
+		if ( node.getKey().compareTo(key) < 0 ) {
+			node.right = this.set(node.right, key, value);
+			return node;
+		} else if ( node.getKey().compareTo(key) > 0 ) {
+			node.left = this.set(node.left, key, value);
+			return node;
+		} else {
+			node.value = value;
+			return node; 
+		}
+
 	}
 
 	@Override
 	public V get(K key) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return null;
+		if ( key == null ) { 
+			throw new IllegalArgumentException("Key is null.");
+		} 
+		return get(this.root, key);
+	}
+	/*
+	 * Helper method for get.
+	 */
+	private V get( Node<K,V> node, K key ) {
+		if ( node == null ) {
+			return null;
+		}
+		if ( node.getKey().compareTo(key) > 0 ) {
+			return get(node.left,key);
+		}
+		if ( node.getKey().compareTo(key) < 0 ) {
+			return get(node.right,key);
+		} else {
+			return node.value;
+		}
 	}
 
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.size;
 	}
 
 	@Override
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.size() == 0;
 	}
 
 	@Override
 	public boolean containsKey(K key) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return false;
+		if ( key == null ) {
+			throw new IllegalArgumentException("Key is null.");
+		}
+		return get(this.root, key) == null;
 	}
-
 	// Keys must be in ascending sorted order
 	// You CANNOT use Collections.sort() or any other sorting implementations
 	// You must do inorder traversal of the tree
 	@Override
 	public List<K> keys() {
-		// TODO Auto-generated method stub
-		return null;
+		List<K> keys = new ArrayList<K>();
+		findKeys(this.root, keys);
+		return keys;
+	}
+	/*
+	 * Helper method for keys() method.
+	 */
+	private void findKeys(Node<K,V> root, List<K> keys) {
+		if ( root == null ) {
+			return;
+		} else {
+			keys.add(root.getKey());
+			findKeys(root.left, keys);
+			findKeys(root.right, keys);
+		}
 	}
 	
 	private static class Node<K extends Comparable<? super K>, V> 
 								implements DefaultMap.Entry<K, V> {
-		/* 
-		 * TODO: Add instance variables
-		 */
+
+		K key;
+		V value;
+		Node<K,V> left;
+		Node<K,V> right;
+
+		private Node(K key, V value, Node<K,V> left, Node<K,V> right) {
+			this.key = key;
+			this.value = value;
+			this.left = left;
+			this.right = right; 
+
+		}
 
 		@Override
 		public K getKey() {
-			// TODO Auto-generated method stub
-			return null;
+			return this.key;
 		}
 
 		@Override
 		public V getValue() {
-			// TODO Auto-generated method stub
-			return null;
+			return this.value;
 		}
 
 		@Override
 		public void setValue(V value) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-		
+			this.value = value;
+		}		
 	}
 	 
 }
