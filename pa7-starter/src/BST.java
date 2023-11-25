@@ -87,6 +87,7 @@ public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V>
 		}
 		if ( this.containsKey(key) ) {
 			this.root = this.remove(this.root, key);
+			size--;
 			return true;
 		} else {
 			return false;
@@ -114,18 +115,15 @@ public class BST<K extends Comparable<? super K>, V> implements DefaultMap<K, V>
 		}
 		if ( node.left == null ) { // Case for when node has one child
 			Node<K,V> temp = node.right;
-			size--;
 			return temp;
 		} else if ( node.right == null ) { // Case for when node has one child
 			Node<K,V> temp = node.left;
-			size--;
 			return temp;
 		} else { // Case for node with two children
 			Node<K,V> succ = findRightMin(node.right);
 			node.key = succ.getKey();
 			node.setValue(succ.getValue());
 			node.right = this.remove(node.right, succ.getKey());
-			size--;
 			return node;
 		}
 	}

@@ -41,29 +41,46 @@ public class FileSystem {
 
 
     public void add(String name, String dir, String date) {
-        // NameMap add
+        if ( name == null || dir == null || date == null ) {
+            return;
+        }
+        // If there isn't a file in the system with the same name 
     	if ( !this.nameTree.containsKey(name) ) {
+            // Add to nameTree normally
             this.nameTree.put(name,new FileData(name, dir, date));
+            // Check if dateTree has an entry with the same date
+            if ( !this.dateTree.containsKey(date) ) {
+                ArrayList<FileData> entry = new ArrayList<FileData>();
+                entry.add(new FileData(name,dir,date));
+                this.dateTree.put(date, entry);
+            } else {
+                this.dateTree.get(date).add(new FileData(name, dir, date));
+            }
         } else {
-            int comp = date.compareTo(this.nameTree.get(name).lastModifiedDate);
-            if ( comp < 0 && this.nameTree.get(name).dir.equals(dir) ) {
-                this.nameTree.replace(name,new FileData(name, dir, date));
+            // If the maps contain a file with the same name 
+            String oldDate = this.nameTree.get(name).lastModifiedDate;
+            int comp = oldDate.compareTo(date);
+            if ( comp < 0 ) {
+                ArrayList<FileData> entry = this.dateTree.get(oldDate);
+                this.nameTree.replace(name, new FileData(name, dir, date));
+                // Adding to dateTree
+                FileData toBeRemoved = null;
+                // Finding file to be removed
+                for ( FileData file : entry ) {
+                    if ( file.name.equals(name) ) {
+                        toBeRemoved = file;
+                    }
+                }
+                entry.remove(toBeRemoved);
+                // Remove the node if the arraylist is empty
+                if ( entry.size() == 0 ) {
+                    this.dateTree.remove(oldDate);
+                }
+                ArrayList<FileData> newEntry = new ArrayList<>();
+                newEntry.add(new FileData(name, dir, date));
+                this.dateTree.put(date, newEntry);
             }
         }
-        // DateMap add
-        if ( !this.dateTree.containsKey(date) ) {
-            ArrayList<FileData> entry = new ArrayList<FileData>();
-            entry.add(new FileData(name,dir,date));
-            this.dateTree.put(date, entry);
-        } else {
-            ArrayList<FileData> existingEntry = this.dateTree.get(date);
-            for (FileData node : existingEntry ) {
-                if (!node.name.equals(name)) {
-                    existingEntry.add(new FileData(name, dir, date));
-                } 
-            }
-        }
-
     }
 
 
@@ -80,33 +97,62 @@ public class FileSystem {
     }
 
 
-    // TODO
     public FileSystem filter(String startDate, String endDate) {
-
-        return null;
+        FileSystem result = new FileSystem();
+        List<String> dateKeys = this.dateTree.keys();
+        for ( int i = 0 ; i < dateKeys.size(); i++ ) {
+            String currDate = dateKeys.get(i);
+            int startComp = currDate.compareTo(startDate);
+            int endComp = currDate.compareTo(endDate);
+            if ( startComp >= 0 && endComp < 0 ) {
+                ArrayList<FileData> toBeAdded = this.dateTree.get(currDate);
+                for ( FileData file : toBeAdded ) {
+                    result.add(file.name,file.dir,file.lastModifiedDate);
+                }
+            }
+        }
+        return result;
     }
     
     
-    // TODO
     public FileSystem filter(String wildCard) {
-        return null;
+        FileSystem result = new FileSystem();
+        List<String> nameKeys = this.nameTree.keys();
+        for ( int i = 0; i < nameKeys.size(); i++ ) {
+            if ( nameKeys.get(i).contains(wildCard) ) {
+                FileData toBeAdded = this.nameTree.get(nameKeys.get(i));
+                result.add(toBeAdded.name, toBeAdded.dir, toBeAdded.lastModifiedDate);
+            }
+        }
+        return result;
     }
     
     
     public List<String> outputNameTree(){
         ArrayList<String> str = new ArrayList<>();
-        List<String> names = this.nameTree.keys();
-        for ( int i = 0; i < names.size(); i++ ) {
-            String key = names.get(i);
-            str.add(key + this.nameTree.get(key).toString());
+        if ( !this.nameTree.isEmpty()) {
+            List<String> names = this.nameTree.keys();
+            for ( int i = 0; i < names.size(); i++ ) {
+                String key = names.get(i);
+                str.add(key + ": " +this.nameTree.get(key).toString());
+            }
         }
         return str;
-    }
+    }    
     
-    
-    // TODO
     public List<String> outputDateTree(){
-        return null; 
+
+        ArrayList<String> str = new ArrayList<>();
+        if ( !this.dateTree.isEmpty()) {
+            List<String> dates = this.dateTree.keys();
+            for ( int i = dates.size() - 1; i >= 0; i--  ) {
+                ArrayList<FileData> files = this.dateTree.get(dates.get(i));
+                for ( int j = files.size() - 1 ; j >= 0 ; j-- ) {
+                    str.add(dates.get(i) + ": " + files.get(j).toString());
+                }
+            }
+        }
+        return str; 
     }
     
 
